@@ -1,0 +1,383 @@
+AI-Powered Lead Research & Personalized Email Generation with Groq & Google Sheets
+
+https://n8nworkflows.xyz/workflows/ai-powered-lead-research---personalized-email-generation-with-groq---google-sheets-5938
+
+
+# AI-Powered Lead Research & Personalized Email Generation with Groq & Google Sheets
+
+### 1. Workflow Overview
+
+This workflow is an intelligent sales outreach automation engine designed to transform raw lead data into personalized, ready-to-send introductory emails using AI-driven research and content generation. Its main use cases include automating lead research, enriching lead profiles with up-to-date business insights, generating tailored sales emails, and enabling controlled email sending via manual triggers.
+
+The workflow is logically divided into the following blocks:
+
+- **1.1 Input Reception & Filtering:** Retrieves lead data from Google Sheets, filtering only those leads that have not yet been researched.
+- **1.2 Company Research & Data Enrichment:** For each new lead, performs AI-powered internet research via an AI agent augmented with real-time web search to generate a comprehensive company profile and identifies AI automation opportunities.
+- **1.3 Updating Lead Research Status:** Records the research output back into Google Sheets and updates lead status.
+- **1.4 Gathering Email Draft Context:** Collects email templates and product/service information to prepare for personalized email creation.
+- **1.5 Personalized Email Generation:** Uses a second AI agent to draft customized emails based on enriched lead data, templates, and additional targeted internet research.
+- **1.6 Email Draft Storage & Send Link Creation:** Saves the generated email draft back to Google Sheets and creates a unique URL for manual email sending trigger.
+- **1.7 Workflow Control & Looping:** Manages batch processing of leads and workflow execution trigger.
+
+---
+
+### 2. Block-by-Block Analysis
+
+#### 2.1 Input Reception & Filtering
+
+**Overview:**  
+This block fetches lead data from a Google Sheet and filters leads to process only those without prior research results, preventing duplicate processing.
+
+**Nodes Involved:**  
+- When clicking ‘Execute workflow’ (Manual Trigger)  
+- Get row(s) in sheet (Google Sheets)  
+- If1 (If condition)  
+- Loop Over Items1 (Split in Batches)
+
+**Node Details:**
+
+- **When clicking ‘Execute workflow’**  
+  - Type: Manual Trigger  
+  - Role: Starts the workflow manually on demand.  
+  - Input/Output: No input; outputs to Get row(s) in sheet.  
+  - Failure Modes: None typical; manual start.
+
+- **Get row(s) in sheet**  
+  - Type: Google Sheets (Read)  
+  - Role: Retrieves all lead rows from the "Leads" sheet in Google Sheets.  
+  - Configuration: Reads from document ID “1nYii2KQDrKZNUPbLJ6r2ogNnGGZggJOJR6b6CGM3slY”, sheet gid=0.  
+  - Credentials: Google Sheets OAuth2.  
+  - Output: List of lead data JSON objects.  
+  - Failure Modes: Auth errors, API rate limits, sheet access issues.
+
+- **If1**  
+  - Type: If condition node  
+  - Role: Filters leads where the "Hasil Riset" (Research Result) field is empty.  
+  - Condition: Checks if `Hasil Riset` is empty string (strict, case sensitive).  
+  - Input: Lead rows from Google Sheets node.  
+  - Output: True branch leads to processing; False branch ignored.  
+  - Failure Modes: Expression errors if field missing; empty string check sensitive.
+
+- **Loop Over Items1**  
+  - Type: SplitInBatches  
+  - Role: Processes each filtered lead individually to allow sequential processing by AI agents.  
+  - Input: Filtered leads from If1.  
+  - Output: Single lead per batch to Company Research.  
+  - Failure Modes: Batch size defaults (not specified), large data sets may slow processing.
+
+---
+
+#### 2.2 Company Research & Data Enrichment
+
+**Overview:**  
+This block performs AI-powered business research on each lead’s company using a Langchain AI agent integrated with an internet search tool to generate accurate, up-to-date company profiles and identify automation opportunities.
+
+**Nodes Involved:**  
+- Company Research1 (Langchain AI Agent)  
+- Search Internet1 (Tavily Internet Search)  
+- Groq Chat Model1 (Groq AI language model)  
+- updateDescription (Google Sheets Update)  
+- updateStatus (Google Sheets Update)
+
+**Node Details:**
+
+- **Company Research1**  
+  - Type: Langchain AI Agent  
+  - Role: Acts as an expert business analyst researching the target company.  
+  - Configuration: Prompt instructs to identify company name, core business, and AI opportunity areas; uses Search Internet1 as tool for real-time info; strict no hallucination.  
+  - Input: Single lead item with company name.  
+  - Output: Text description with research results.  
+  - Failure Modes: AI hallucinations if internet data insufficient; tool integration failures; API quota/latency.
+
+- **Search Internet1**  
+  - Type: Tavily Internet Search (AI Tool)  
+  - Role: Provides real-time internet data to AI for company research.  
+  - Input: Query generated by AI agent dynamically.  
+  - Credentials: Tavily API.  
+  - Failure Modes: API errors, network issues, rate limits.
+
+- **Groq Chat Model1**  
+  - Type: Groq AI Language Model  
+  - Role: Underlying AI model for Company Research1 agent.  
+  - Credentials: Groq API.  
+  - Failure Modes: API errors, latency, model unavailability.
+
+- **updateDescription**  
+  - Type: Google Sheets (Update)  
+  - Role: Updates the "Hasil Riset" column in Google Sheets for the lead with AI research output.  
+  - Configuration: Matches rows by "Perusahaan" (Company), updates research result field.  
+  - Credentials: Google Sheets OAuth2.  
+  - Failure Modes: Write failures, row matching issues.
+
+- **updateStatus**  
+  - Type: Google Sheets (Update)  
+  - Role: Updates lead’s "Status" to "Leads" (indicating research done) for the corresponding company.  
+  - Input: From updateDescription node.  
+  - Failure Modes: Same as updateDescription.
+
+---
+
+#### 2.3 Gathering Email Draft Context
+
+**Overview:**  
+This block gathers necessary data for email drafting: email templates based on lead status, list of products/services, and prepares the lead data with URL encoding for creating send links.
+
+**Nodes Involved:**  
+- getTemplate (Google Sheets Read)  
+- getService (Google Sheets Read)  
+- Code (JavaScript Code)  
+- inputLink (Google Sheets Update)
+
+**Node Details:**
+
+- **getTemplate**  
+  - Type: Google Sheets (Read)  
+  - Role: Retrieves the email template row matching the lead’s current status from the "Template" sheet.  
+  - Configuration: Filters on "Tahap" column equal to lead status.  
+  - Credentials: Google Sheets OAuth2.  
+  - Failure Modes: No matching template, read errors.
+
+- **getService**  
+  - Type: Google Sheets (Read)  
+  - Role: Fetches product/service list from "List Product" sheet to provide context for email drafting.  
+  - Credentials: Google Sheets OAuth2.  
+  - Failure Modes: Sheet access issues.
+
+- **Code**  
+  - Type: Code (JavaScript)  
+  - Role: URL-encodes the company name for safe inclusion in email send URL.  
+  - Logic: Uses encodeURIComponent on the "Perusahaan" field, adds new field "perusahaan_url_encoded".  
+  - Input: Lead data with company name.  
+  - Output: Lead data augmented with encoded URL field.  
+  - Failure Modes: Missing "Perusahaan" field, JS runtime errors.
+
+- **inputLink**  
+  - Type: Google Sheets (Update)  
+  - Role: Updates the lead record with a "Kirim email" field containing a unique send email webhook URL including encoded company name.  
+  - Credentials: Google Sheets OAuth2.  
+  - Failure Modes: Write failures.
+
+---
+
+#### 2.4 Personalized Email Generation
+
+**Overview:**  
+This block creates personalized, relevant email drafts for each lead using an AI sales assistant agent that combines enriched lead data, templates, product info, and a targeted recent internet search to craft compelling email content.
+
+**Nodes Involved:**  
+- AI Sales Assistant (Langchain AI Agent)  
+- Groq Chat Model (Groq AI Language Model)  
+- Search Internet2 (Tavily Internet Search)  
+- Structured Output Parser1 (Langchain Output Parser)  
+- draftEmail (Google Sheets Update)
+
+**Node Details:**
+
+- **AI Sales Assistant**  
+  - Type: Langchain AI Agent  
+  - Role: Drafts a personalized sales email including subject and body using all input context and additional internet research results.  
+  - Configuration: Complex prompt providing sender info, company info, sales stage, template theme, key research findings, and instructing to produce a JSON output of emailSubject and emailBody only.  
+  - Inputs: Lead data, research results, template, product list, Search Internet2 tool.  
+  - OnError: Continue regular output (to avoid workflow stop on AI failure).  
+  - Failure Modes: AI output format errors, tool integration issues, API limits.
+
+- **Groq Chat Model**  
+  - Type: Groq AI Language Model  
+  - Role: Underlying model for AI Sales Assistant agent.  
+  - Credentials: Groq API.  
+  - Failure Modes: Same as other Groq nodes.
+
+- **Search Internet2**  
+  - Type: Tavily Internet Search (AI Tool)  
+  - Role: Provides recent, relevant facts/statistics for email "hook" based on recipient’s position and industry.  
+  - Credentials: Tavily API.  
+  - Failure Modes: API errors, inadequate search results.
+
+- **Structured Output Parser1**  
+  - Type: Langchain Output Parser (Structured JSON)  
+  - Role: Parses AI Sales Assistant output to ensure valid JSON with `emailSubject` and `emailBody`.  
+  - Configuration: Uses JSON schema example to validate output.  
+  - Failure Modes: Parsing errors if AI output malformed.
+
+- **draftEmail**  
+  - Type: Google Sheets (Update)  
+  - Role: Saves the drafted email content into "Send Email Perkenalan" column for the lead.  
+  - Credentials: Google Sheets OAuth2.  
+  - Failure Modes: Write errors.
+
+---
+
+#### 2.5 Workflow Control & Looping
+
+**Overview:**  
+Manages batch processing and iteration flow control, connecting filtering, looping, and sequential AI processing.
+
+**Nodes Involved:**  
+- If1  
+- Loop Over Items1  
+- Connections between nodes (implicit)
+
+**Details:**  
+- The loop node processes each lead individually to ensure each company research and email draft is specific and atomic.  
+- Failures in one lead’s processing do not halt the entire workflow due to error continuation settings on AI agents.  
+- Manual trigger controls the entire flow, allowing operator control.
+
+---
+
+### 3. Summary Table
+
+| Node Name                | Node Type                         | Functional Role                                  | Input Node(s)                  | Output Node(s)              | Sticky Note                                                                                                                               |
+|--------------------------|----------------------------------|-------------------------------------------------|-------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| When clicking ‘Execute workflow’ | Manual Trigger                  | Starts workflow manually                         | None                          | Get row(s) in sheet         | ## Get Leads Data: Starts from Google Sheet connected to forms or CRM; filters unprocessed leads.                                         |
+| Get row(s) in sheet      | Google Sheets (Read)             | Reads leads data from Google Sheets              | When clicking ‘Execute workflow’ | If1                         | ## Get Leads Data: Central lead source, flexible to replace Google Sheets with other data sources.                                         |
+| If1                      | If Condition                    | Filters leads with empty research result         | Get row(s) in sheet           | Loop Over Items1 (true branch) | ## Get Leads Data: Ensures only new leads are processed, avoiding duplicates.                                                              |
+| Loop Over Items1          | Split in Batches                | Processes leads one-by-one                        | If1                           | Company Research1 (main)    | ## Company Research: Individual lead processing for AI research accuracy.                                                                  |
+| Company Research1         | Langchain AI Agent             | Performs AI business analysis with internet search | Loop Over Items1              | updateDescription           | ## Company Research: AI analyst researches company, finds AI opportunity, uses real-time internet search.                                  |
+| Search Internet1          | Tavily Internet Search (AI Tool) | Provides real-time web data for company research | Company Research1 (ai_tool)   | Company Research1 (ai_tool) | ## Company Research: Internet search tool integrated to avoid hallucination and ensure current data.                                       |
+| Groq Chat Model1          | Groq AI Model                  | AI model for Company Research1                    | Company Research1 (ai_languageModel) | Company Research1           | ## Company Research: Groq LLM powers AI agent.                                                                                             |
+| updateDescription         | Google Sheets (Update)          | Updates company research results in sheet        | Company Research1             | updateStatus                | ## Company Research: Writes research output back to Google Sheets.                                                                         |
+| updateStatus              | Google Sheets (Update)          | Updates lead status to "Leads"                     | updateDescription             | getTemplate                 | ## Company Research: Marks lead as researched.                                                                                            |
+| getTemplate               | Google Sheets (Read)             | Fetches email template based on lead status       | updateStatus                  | getService                  | ## Generate & Send Lead Email: Retrieves email templates by sales stage for personalization.                                                |
+| getService                | Google Sheets (Read)             | Fetches product/service list for email context    | getTemplate                   | AI Sales Assistant          | ## Generate & Send Lead Email: Supplies services/products info for email drafting context.                                                 |
+| AI Sales Assistant        | Langchain AI Agent             | Drafts personalized email with additional internet research | getService, getTemplate, Search Internet2, Loop Over Items1 | draftEmail                 | ## Generate & Send Lead Email: AI sales assistant drafts email using enriched info and targeted web search.                                 |
+| Groq Chat Model           | Groq AI Model                  | AI model for AI Sales Assistant                    | AI Sales Assistant (ai_languageModel) | AI Sales Assistant          | ## Generate & Send Lead Email: Groq LLM powers email drafting agent.                                                                       |
+| Search Internet2          | Tavily Internet Search (AI Tool) | Provides recent industry facts for email hook      | AI Sales Assistant (ai_tool)  | AI Sales Assistant (ai_tool) | ## Generate & Send Lead Email: Targeted internet search for compelling email openers.                                                     |
+| Structured Output Parser1 | Langchain Output Parser        | Parses AI output JSON to structured format         | AI Sales Assistant (ai_outputParser) | AI Sales Assistant          | ## Generate & Send Lead Email: Ensures AI output conforms to required JSON schema for email subject/body.                                  |
+| draftEmail                | Google Sheets (Update)          | Saves drafted email content to Google Sheets       | AI Sales Assistant            | Code                        | ## Generate & Send Lead Email: Stores generated email text in sheet for review and sending.                                                |
+| Code                     | Code (JavaScript)               | Encodes company name for URL-safe send email link | draftEmail                   | inputLink                   | ## Generate & Send Lead Email: URL-encodes company name for webhook send link generation.                                                  |
+| inputLink                 | Google Sheets (Update)          | Updates sheet with unique send-email webhook URL   | Code                         | Loop Over Items1            | ## Generate & Send Lead Email: Creates manual send link enabling human-in-the-loop email sending.                                          |
+
+---
+
+### 4. Reproducing the Workflow from Scratch
+
+1. **Create Manual Trigger Node**  
+   - Type: Manual Trigger  
+   - Purpose: Start workflow on demand.
+
+2. **Add Google Sheets Node to Read Leads**  
+   - Type: Google Sheets (Read)  
+   - Configure:  
+     - Document ID: Your leads spreadsheet ID  
+     - Sheet GID or name: e.g., "Leads" (gid=0)  
+     - Read all rows or filtered rows as needed  
+   - Add OAuth2 credentials for Google Sheets.
+
+3. **Add If Condition Node to Filter Leads**  
+   - Type: If  
+   - Condition: Check if "Hasil Riset" field is empty (string empty, strict)  
+   - Input: Output from Google Sheets read node  
+   - True branch continues processing; false branch ignored.
+
+4. **Add SplitInBatches Node**  
+   - Type: SplitInBatches  
+   - Connect True output of If node  
+   - Default batch size (1) to process leads individually.
+
+5. **Add Langchain Agent Node for Company Research**  
+   - Type: Langchain AI Agent  
+   - Configure prompt to:  
+     - Research company (from lead field "Perusahaan")  
+     - Identify company name, core business, AI opportunity areas  
+     - Use attached internet search tool (Tavily) to fetch current data  
+     - Output only text description, no greetings  
+   - Add Groq API credentials as AI language model.
+
+6. **Add Tavily Internet Search Node**  
+   - Type: Tavily internet search (AI Tool)  
+   - No manual query; queries dynamically from AI agent.  
+   - Add Tavily API credentials.
+
+7. **Connect Tavily node as AI tool to Company Research agent.**
+
+8. **Add Google Sheets Node to Update Research Result**  
+   - Type: Google Sheets (Update)  
+   - Configure to update "Hasil Riset" column for matching company ("Perusahaan")  
+   - Use same spreadsheet as input.  
+   - Add Google Sheets OAuth2 credentials.
+
+9. **Add Google Sheets Node to Update Lead Status**  
+   - Type: Google Sheets (Update)  
+   - Update "Status" column to "Leads" for matching company.  
+   - Connect after research result update node.
+
+10. **Add Google Sheets Node to Get Email Template**  
+    - Type: Google Sheets (Read)  
+    - Sheet: "Template" sheet in same spreadsheet  
+    - Filter rows where "Tahap" equals lead's current status  
+    - Add credentials.
+
+11. **Add Google Sheets Node to Get Product/Service List**  
+    - Type: Google Sheets (Read)  
+    - Sheet: "List Product" sheet  
+    - Add credentials.
+
+12. **Add Langchain Agent Node for AI Sales Assistant**  
+    - Type: Langchain AI Agent  
+    - Prompt includes: lead data, research results, email template, product list, current date  
+    - Use attached internet search tool for recent stats/facts (Search Internet2)  
+    - Output: JSON containing emailSubject and emailBody  
+    - Set onError to continue regular output to prevent halting on errors.  
+    - Add Groq API credentials as AI language model.
+
+13. **Add Tavily Internet Search Node for Additional Research (Search Internet2)**  
+    - Type: Tavily internet search (AI Tool)  
+    - Queries dynamically generated by AI Sales Assistant.  
+    - Add Tavily API credentials.
+
+14. **Connect Tavily node as AI tool to AI Sales Assistant agent.**
+
+15. **Add Langchain Structured Output Parser Node**  
+    - Type: Langchain output parser (structured)  
+    - Configure JSON schema example: `{ "emailSubject": "Subject email", "emailBody": "Full email body" }`  
+    - Connect output parser to AI Sales Assistant.
+
+16. **Add Google Sheets Node to Save Draft Email**  
+    - Type: Google Sheets (Update)  
+    - Update "Send Email Perkenalan" column with AI draft email JSON output  
+    - Match rows by "Perusahaan"  
+    - Add credentials.
+
+17. **Add Code Node (JavaScript) to URL-Encode Company Name**  
+    - Input: Lead data  
+    - Logic: Use `encodeURIComponent` on "Perusahaan" field, add new field "perusahaan_url_encoded"  
+    - Output: Augmented lead JSON.
+
+18. **Add Google Sheets Node to Update Send Email Link**  
+    - Type: Google Sheets (Update)  
+    - Update "Kirim email" column with webhook URL including encoded company name variable  
+    - Match rows by "Perusahaan"  
+    - Add credentials.
+
+19. **Connect Code Node output to Send Email Link update node.**
+
+20. **Loop Control**  
+    - Connect last update node back to Loop Over Items1 node to continue batch processing.
+
+21. **Connections Summary:**  
+    - Manual Trigger → Get Leads → If (filter) → Loop Over Items  
+    - Loop Over Items → Company Research (with Groq & Tavily) → updateDescription → updateStatus → getTemplate → getService → AI Sales Assistant (with Groq & Tavily) → draftEmail → Code → inputLink → Loop Over Items
+
+22. **Credential Setup:**  
+    - Google Sheets OAuth2 for all Google Sheets nodes  
+    - Tavily API for internet search nodes  
+    - Groq API for Langchain AI agent nodes
+
+---
+
+### 5. General Notes & Resources
+
+| Note Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Context or Link                                                                                                                                                                     |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| This workflow uses Google Sheets as a centralized, familiar dashboard for leads and email drafts, but is flexible to integrate with CRM or other databases like Airtable or Supabase.                                                                                                                                                                                                                                                                                                                              | Sticky Note on "Get Leads Data" block.                                                                                                                                              |
+| The AI research agent is designed to strictly avoid hallucinations by relying solely on real-time internet search data via the Tavily tool.                                                                                                                                                                                                                                                                                                                                                                       | Sticky Note on "Company Research" block.                                                                                                                                            |
+| The email generation AI additionally performs a targeted internet search for recent, relevant industry data to create a compelling email opening hook, improving email relevance and engagement.                                                                                                                                                                                                                                                                                                                    | Sticky Note on "Generate & Send Lead Email" block.                                                                                                                                   |
+| The manual send email link created in the sheet enables human-in-the-loop control, allowing sales teams to review drafts before sending emails. Future workflow enhancements could automate sending, follow-up sequences, lead scoring, and multi-channel outreach integration.                                                                                                                                                                                                                                    | Sticky Note on overall description and potential improvements.                                                                                                                      |
+| Groq AI LLM and Tavily internet search are key AI components and require valid API credentials with appropriate quota and access.                                                                                                                                                                                                                                                                                                                                                                              | Credential notes for AI nodes.                                                                                                                                                       |
+| For best results, ensure Google Sheets columns and names exactly match those used in the workflow, including key columns such as "Perusahaan", "Hasil Riset", "Status", "Send Email Perkenalan", "Kirim email".                                                                                                                                                                                                                                                                                                      | General configuration recommendation.                                                                                                                                               |
+| The workflow is designed to be robust against missing data or AI errors by using error continuation and try/catch in code, but monitoring logs and error alerts is advised.                                                                                                                                                                                                                                                                                                                                     | General error handling advice.                                                                                                                                                       |
+
+---
+
+**Disclaimer:**  
+The text provided is exclusively derived from an automated workflow created with n8n, a no-code integration and automation tool. This processing strictly complies with current content policies and contains no illegal, offensive, or protected elements. All handled data is legal and public.
