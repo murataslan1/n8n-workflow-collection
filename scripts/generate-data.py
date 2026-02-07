@@ -5,7 +5,10 @@ import json
 import glob
 import os
 import re
+from urllib.parse import quote
 
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/murataslan1/n8n-workflow-collection/main/workflows"
+GITHUB_BROWSE_BASE = "https://github.com/murataslan1/n8n-workflow-collection/tree/main/workflows"
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WORKFLOWS_DIR = os.path.join(REPO_ROOT, "workflows")
 OUTPUT_FILE = os.path.join(REPO_ROOT, "docs", "data", "workflows.json")
@@ -55,6 +58,8 @@ def process_metadata(meta_path):
     # Extract categories
     categories = [c["name"] for c in data.get("categories", [])]
 
+    encoded_folder = quote(folder)
+
     return {
         "id": wf_id or folder,
         "name": data.get("user_name", folder),
@@ -69,9 +74,9 @@ def process_metadata(meta_path):
         "authorBio": data.get("user_bio", ""),
         "url": data.get("url", ""),
         "urlN8n": data.get("url_n8n", ""),
-        "image": f"../../workflows/{folder}/{image}" if image else None,
-        "json": f"../../workflows/{folder}/{workflow_json}" if workflow_json else None,
-        "readme": f"../../workflows/{folder}/{readme}" if readme else None,
+        "image": f"{GITHUB_RAW_BASE}/{encoded_folder}/{quote(image)}" if image else None,
+        "json": f"{GITHUB_RAW_BASE}/{encoded_folder}/{quote(workflow_json)}" if workflow_json else None,
+        "readme": f"{GITHUB_BROWSE_BASE}/{encoded_folder}/{quote(readme)}" if readme else None,
         "folder": folder,
     }
 
@@ -116,7 +121,7 @@ def main():
                 "url": "https://n8n.io/workflows/2753-rag-chatbot-for-company-documents-using-google-drive-and-gemini/",
                 "urlN8n": "https://n8n.io/workflows/2753-rag-chatbot-for-company-documents-using-google-drive-and-gemini/",
                 "image": None,
-                "json": f"../../workflows/{rag_folder}/{rag_json[0]}",
+                "json": f"{GITHUB_RAW_BASE}/{quote(rag_folder)}/{quote(rag_json[0])}",
                 "readme": None,
                 "folder": rag_folder,
                 "featured": True,
