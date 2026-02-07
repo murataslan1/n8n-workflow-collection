@@ -16,6 +16,21 @@
 
 ---
 
+## ⭐ Featured Workflow: RAG Chatbot for Company Documents
+
+> **Chat with your company documents using AI** — Automatically indexes files from Google Drive and answers employee questions using RAG (Retrieval-Augmented Generation).
+
+| | |
+|---|---|
+| 🔗 **n8n Template** | [View on n8n.io](https://n8n.io/workflows/2753-rag-chatbot-for-company-documents-using-google-drive-and-gemini/) |
+| 🧩 **Nodes Used** | Google Drive Trigger · Pinecone Vector Store · Google Gemini · AI Agent · Text Splitter |
+| 📂 **Use Case** | HR Assistant, Internal Knowledge Base, Company Policy Q&A |
+| ⚡ **How it works** | 1) Watches Google Drive folder for new/updated docs → 2) Chunks & embeds with Gemini → 3) Stores in Pinecone → 4) Chat interface answers questions from your docs |
+
+📥 [Download Workflow JSON](workflows/RAG%20Workflow%20For%20Company%20Documents%20stored%20in%20Google%20Drive/RAG_Workflow_Google_Drive.json)
+
+---
+
 ## 📊 What's Inside
 
 This repository contains **4,300+ production-ready n8n workflows** covering every automation use case you can think of — from AI agents and chatbots to CRM pipelines, marketing automation, and DevOps.

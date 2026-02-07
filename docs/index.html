@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>n8n Workflow Collection — 4,300+ Ready-to-Import Templates</title>
+  <meta name="description" content="Browse, search and download 4,300+ production-ready n8n automation workflows. AI agents, CRM, marketing, DevOps and more.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-top">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <div>
+            <h1>n8n Workflow Collection</h1>
+            <p class="subtitle">4,300+ Ready-to-Import Automation Templates</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a href="https://github.com/murataslan1/n8n-workflow-collection" class="btn btn-github" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            Star on GitHub
+          </a>
+          <button class="btn btn-theme" id="themeToggle" title="Toggle theme">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Featured Workflow -->
+  <section class="featured" id="featured">
+    <div class="container">
+      <div class="featured-card">
+        <div class="featured-badge">⭐ Featured Workflow</div>
+        <h2>RAG Chatbot for Company Documents</h2>
+        <p>Chat with your company documents using AI — Automatically indexes files from Google Drive and answers employee questions using RAG.</p>
+        <div class="featured-nodes">
+          <span class="node-tag">Google Drive</span>
+          <span class="node-tag">Pinecone</span>
+          <span class="node-tag">Google Gemini</span>
+          <span class="node-tag">AI Agent</span>
+          <span class="node-tag">Text Splitter</span>
+        </div>
+        <div class="featured-actions">
+          <a href="https://n8n.io/workflows/2753-rag-chatbot-for-company-documents-using-google-drive-and-gemini/" class="btn btn-primary" target="_blank" rel="noopener">View on n8n.io →</a>
+          <a href="../../workflows/RAG%20Workflow%20For%20Company%20Documents%20stored%20in%20Google%20Drive/RAG_Workflow_Google_Drive.json" class="btn btn-secondary" download>Download JSON</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-number" id="statWorkflows">—</span>
+          <span class="stat-label">Workflows</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" id="statCategories">—</span>
+          <span class="stat-label">Categories</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" id="statIntegrations">—</span>
+          <span class="stat-label">Integrations</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">Free</span>
+          <span class="stat-label">& Open Source</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search & Filters -->
+  <section class="controls">
+    <div class="container">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search workflows... (e.g. 'slack bot', 'gmail automation', 'openai')">
+        <span class="search-count" id="searchCount"></span>
+      </div>
+      <div class="category-filters" id="categoryFilters">
+        <button class="cat-btn active" data-category="all">All</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow Grid -->
+  <main class="main">
+    <div class="container">
+      <div class="workflow-grid" id="workflowGrid">
+        <div class="loading">Loading workflows...</div>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Built by <a href="https://murataslan1.github.io" target="_blank" rel="noopener">Murat Aslan</a> · <a href="https://github.com/murataslan1/n8n-workflow-collection" target="_blank" rel="noopener">GitHub</a> · Powered by <a href="https://n8n.io" target="_blank" rel="noopener">n8n</a></p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
