@@ -124,7 +124,7 @@ function renderWorkflows() {
   grid.innerHTML = page.map(wf => {
     const cats = wf.categories.slice(0, 3).map(c => `<span class="tag">${c}</span>`).join("");
     const topNodes = wf.nodes.slice(0, 4).map(n => `<span class="node">${cleanNodeName(n)}</span>`).join("");
-    const moreNodes = wf.nodes.length > 4 ? `<span class="node">+${wf.nodes.length - 4}</span>` : "";
+    const moreNodes = wf.nodes.length > 4 ? `<span class="node more">+${wf.nodes.length - 4}</span>` : "";
 
     const n8nLink = wf.urlN8n || wf.url;
     const viewBtn = n8nLink
@@ -151,6 +151,13 @@ function renderWorkflows() {
       </div>
     `;
   }).join("");
+
+  // Re-trigger card entrance animations
+  grid.querySelectorAll(".wf-card").forEach(card => {
+    card.style.animation = "none";
+    card.offsetHeight; // force reflow
+    card.style.animation = "";
+  });
 
   renderPagination();
   window.scrollTo({ top: document.querySelector(".controls").offsetTop - 60, behavior: "smooth" });
