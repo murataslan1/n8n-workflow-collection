@@ -7,6 +7,7 @@
 ![Integrations](https://img.shields.io/badge/Integrations-100+-00C853?style=for-the-badge)
 ![AI Workflows](https://img.shields.io/badge/AI_Workflows-1,050+-8B5CF6?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Browse_Online-FF6D5A?style=for-the-badge)](https://murataslan1.github.io/n8n-workflow-collection/)
 
 ### The Largest Open-Source Collection of Ready-to-Import n8n Automation Templates
 
@@ -34,6 +35,8 @@
 ## 📊 What's Inside
 
 This repository contains **4,300+ production-ready n8n workflows** covering every automation use case you can think of — from AI agents and chatbots to CRM pipelines, marketing automation, and DevOps.
+
+🌐 **[Browse all workflows online →](https://murataslan1.github.io/n8n-workflow-collection/)**
 
 ### 🔥 Top Categories
 
@@ -87,6 +90,8 @@ This repository contains **4,300+ production-ready n8n workflows** covering ever
 ## 🚀 Quick Start
 
 ### How to Import a Workflow into n8n
+
+> 💡 **Tip:** You can also search and browse all workflows visually at **[murataslan1.github.io/n8n-workflow-collection](https://murataslan1.github.io/n8n-workflow-collection/)**
 
 1. **Browse** the `workflows/` folder and find the workflow you need
 2. **Download** the `.json` file
@@ -197,7 +202,7 @@ If you find this collection useful:
 
 **Built with ❤️ for the n8n community**
 
-[![GitHub stars](https://img.shields.io/github/stars/murataslan1/n8n-workflow-collection?style=social)](https://github.com/murataslan1/n8n-workflow-collection)
+🌐 **[Live Demo](https://murataslan1.github.io/n8n-workflow-collection/)** · [![GitHub stars](https://img.shields.io/github/stars/murataslan1/n8n-workflow-collection?style=social)](https://github.com/murataslan1/n8n-workflow-collection)
 [![GitHub forks](https://img.shields.io/github/forks/murataslan1/n8n-workflow-collection?style=social)](https://github.com/murataslan1/n8n-workflow-collection/fork)
 
 </div>
